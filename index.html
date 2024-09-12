@@ -1,0 +1,492 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>SORACOM x Amaozn Location Serviceハンズオンテキスト</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="soracom-amazon-location-service-handson"
+                  title="SORACOM x Amaozn Location Serviceハンズオンテキスト"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="ハンズオンを始める前に" duration="5">
+        <h2 is-upgraded>ドライランされる方へ(最後消す)</h2>
+<ul>
+<li>誤字脱字は直接直していいよ</li>
+<li>意見はコメントで</li>
+<li>不足しているところを追加する、もしくは削除を大きくされる場合は提案モードで、書いちゃってください</li>
+<li>これでやって↓<br> <img style="width: 385.00px" src="img/b6a662da2b67ba2a.png"></li>
+</ul>
+<h2 is-upgraded>前提</h2>
+<ul>
+<li>PC (Windows もしくは macOSで、ブラウザはChrome、もしくは Firefoxをインストールしておいてください)</li>
+<li>SORACOMアカウント (SORACOMアカウントの作成手順は<a href="https://soracom.github.io/iot-recipes/create-account-soracom-jp/#0" target="_blank">こちら</a>)</li>
+<li>AWSアカウント(AWSアカウントの作成手順は<a href="https://aws.amazon.com/jp/register-flow/" target="_blank">こちら</a>)</li>
+<li>このハンズオンテキストは、AWSの東京リージョン(ap-northeast-1)、オレゴンリージョン(us-west-2)で動作確認しています。</li>
+</ul>
+<h2 is-upgraded>構成図</h2>
+<p class="image-container"><img style="width: 566.90px" src="img/d7d9f0df7f8eabff.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="利用するサービスについて" duration="0">
+        <p>以下の内容は、Claude 3 Haiku for Amazon Bedrock Edtionを使って出力した内容をDeepLを使って日本語化したものです。</p>
+<h2 is-upgraded><strong>Amazon Web Services</strong></h2>
+<h3 is-upgraded><strong>Amazon Location Service</strong></h3>
+<p>Amazon Location Serviceは、AWS上で地理情報関連のアプリケーションを簡単に構築できるサービスです。開発者は地図表示、ジオコーディング、ルート検索、位置情報のトラッキングなどの機能を、わずかなコーディングで実装できます。プライバシーや規制への対応も容易で、地図データや位置情報の管理も不要です。位置情報の分析や可視化、デバイスの位置追跡など、様々な位置情報関連の機能をAWSのインフラを活用して提供しています。開発者は地理情報システム構築の複雑さから解放され、より顧客中心のアプリケーション開発に集中できるようサポートします。地理情報を活用したサービス開発に興味のある開発者にとって有用なソリューションと言えるでしょう。</p>
+<h3 is-upgraded><strong>AWS Lambda</strong></h3>
+<p>AWS Lambdaは、AWSが提供するサーバーレスコンピューティングサービスです。従来のサーバー管理を必要とせず、アプリケーションのコードだけを実行できるため、開発者はインフラストラクチャの管理に煩わされることなく、アプリケーションの開発に集中できます。 Lambdaは、イベントに応じて自動的にスケールアップ/ダウンするため、使用量に応じた柔軟な課金が可能です。また、Lambdaはリアルタイムのデータ処理やマイクロサービスの構築、IoTデバイスの制御などに活用できます。 Lambdaは、Node.js、Python、Java、Go、.NET Coreなどさまざまな言語に対応しており、開発者はより適切な言語を選択できます。AWSの他のサービスとも連携が容易で、幅広い用途に活用できるのが特徴です。</p>
+<h3 is-upgraded><strong>AWS Amplify(今回は構築しません)</strong></h3>
+<p>AWS Amplifyは、フルスタックのウェブアプリケーションやモバイルアプリケーションの開発を簡単に行えるサービスです。Amplifyは、データの操作、認証、ストレージ、機械学習などの機能を提供し、開発者はこれらの機能をすぐに活用できます。Amplifyは、AWS CloudFormationを利用してインフラを管理するため、開発者は手動でリソースを作成する必要がありません。また、Amplifyはフロントエンドフレームワークとも統合されており、React、Angular、Vueなどのフレームワークと連携して使用できます。さらに、Amplifyは継続的デリバリーパイプラインの構築も支援し、アプリケーションの迅速なデプロイを可能にします。Amplifyは、開発者の生産性を高め、アプリケーション開発の複雑さを軽減することで、効率的な開発を実現します。</p>
+<h3 is-upgraded><strong>AWS CDK</strong></h3>
+<p>AWS CDKは、クラウドアプリケーションのインフラストラクチャをコードで定義・管理できるオープンソースの開発フレームワークです。AWS上のリソース(EC2インスタンス、S3、VPCなど)をプログラミング言語(TypeScript、Python、Java、C#など)を使って宣言的に記述することができ、InfrastructureasCodeの実現を支援します。これにより、リソースの作成・更新・削除が容易になり、環境の再現性や一貫性が高まります。また、CDK Pipelinesを使えば、アプリケーションとインフラストラクチャの両方をCI/CDパイプラインで自動化することも可能です。AWS CDKは、クラウド上のアプリケーション開発をより効率的に行うためのツールとして注目されています。</p>
+<h3 is-upgraded><strong>AWS CloudShell</strong></h3>
+<p>AWS CloudShellは、AWS Management Consoleに組み込まれており、ブラウザ上で直接AWSコマンドラインインターフェイス(CLI)を使用できる便利なツールです。ウェブブラウザさえあれば、どこからでもAWSリソースにアクセスできるため、モバイル環境でも利用できます。AWScredentialsは自動的に設定されるため、AWS CLIコマンドを直接実行できます。また、事前にインストールする必要がないため、すぐに使い始められます。CloudShellには、AWS CLI、AWS SDK、Gitなどのツールがプリインストールされており、AWS環境の管理や開発に役立ちます。AWSリソースの確認やトラブルシューティングなど、様々なシナリオで活用できるAWSの便利なツールといえます。</p>
+<h2 is-upgraded><strong>SORACOM</strong></h2>
+<p>以下は、SORACOMユーザーコンソール内にあるSORACOM Support Botに300文字程度で解説してもらった内容になります。</p>
+<h3 is-upgraded><strong>SORACOM リファレンスデバイス</strong></h3>
+<p>SORACOM リファレンスデバイスは、SORACOM の IoT プラットフォームとシームレスに連携するために設計されたデバイス群です。これらのデバイスは、開発者や企業が迅速に IoT ソリューションを構築・展開するのを支援します。代表的なリファレンスデバイスには、SORACOM LTE-M Button、Wio LTE、M5Stack 用 3G 拡張ボード、GPS マルチユニット SORACOM Edition などがあります。これらのデバイスは、セルラー通信、GPS 追跡、センサー計測などの機能を備えており、SORACOM Air や SORACOM Beam などのサービスと連携してデータの収集・転送が可能です。さらに、SORACOM のユーザーコンソールを通じてデバイスの管理や設定が容易に行えるため、開発期間の短縮と運用の効率化が図れます。これにより、IoT プロジェクトの迅速な立ち上げとスケーリングが可能となり、さまざまなユースケースに対応できます。SORACOM リファレンスデバイスは、SORACOM IoT ストアで購入可能で、すぐに利用を開始できます。</p>
+<h3 is-upgraded><strong>SORACOM Harvest</strong></h3>
+<p>SORACOM Harvest は、IoT デバイスからのデータやファイルを収集・蓄積するサービスです。SORACOM Air for セルラーや SORACOM Air for Sigfox などのデータ通信と組み合わせて利用することで、センサーデータや位置情報を手軽に収集し、SORACOM ユーザーコンソールで即座に可視化できます。Harvest は、テキスト、JSON、バイナリなどのデータを扱う「Harvest Data」と、画像やログなどのファイルを扱う「Harvest Files」の2つの機能を提供しています。データは標準で 40 日間保存され、オプションを有効にすることで最大 731 日間の保存が可能です。さらに、Harvest に蓄積されたデータは SORACOM Lagoon を利用して高度に可視化したり、アラート設定を行ったりすることもできます。これにより、IoT プロジェクトにおけるデータの収集、保存、可視化までの一連の流れを簡単に実現でき、迅速なデータ確認が可能となります。</p>
+<h3 is-upgraded><strong>SORACOM Funk</strong></h3>
+<p>SORACOM Funk は、AWS Lambda、Azure Functions、Google Cloud Functions などのパブリッククラウドが提供する FaaS (Function as a Service) を直接呼び出すことができるサービスです。デバイスのスペックや消費電力の制約から複雑な計算処理が難しい場合でも、Funk を利用することでこれらの処理をクラウドにオフロードできます。さらに、FaaS の認証情報を SORACOM Funk が保持するため、デバイス側で認証情報を管理する必要がなく、SDK を使わずに Function を呼び出すことが可能です。これにより、デバイスの実装がシンプルになり、セキュリティも向上します。Funk は、TCP、UDP、HTTP、SMS、USSD、LPWA などの通信プロトコルに対応しており、さまざまなデバイスから利用できます。また、Unified Endpoint を利用することで、Funk だけでなく他の SORACOM サービスとも連携が可能です。月間 50,000 リクエストまでの無料利用枠も提供されており、初期費用や基本料金は不要です。</p>
+<h3 is-upgraded><strong>SORACOM Beam</strong></h3>
+<p>SORACOM Beam は、IoT デバイスから送信されたデータを任意のサーバーに転送するサービスです。デバイスからのデータをプロトコル変換や TLS 暗号化などの処理を加えて、安全に転送します。これにより、デバイス側での暗号化処理や接続先サーバーの設定変更が不要となり、消費電力や通信量を削減できます。Beam は HTTP/HTTPS、TCP、UDP などのプロトコルに対応しており、デバイスからの通信を適切なプロトコルに変換して転送します。さらに、SORACOM ユーザーコンソールや API を通じて接続先サーバーやパラメータを簡単に変更できるため、大量の IoT デバイスの管理が効率化されます。Unified Endpoint を利用することで、複数のエントリポイントを統一し、デバイスからのデータ送信を一元管理することも可能です。これにより、セキュリティの向上と運用の簡素化が実現され、IoT システムの構築と運用が容易になります。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="LINE Tokenの取得" duration="0">
+        <p>LINE Tokenの取得方法</p>
+<h2 is-upgraded>利用料金</h2>
+<p>無料</p>
+<h2 is-upgraded>LINE Notifyにログイン</h2>
+<p>Tokenを取得するために、Line Nofityにログインします。</p>
+<ol type="1" start="1">
+<li><a href="https://notify-bot.line.me/ja/" target="_blank">https://notify-bot.line.me/ja/</a> にアクセスします。</li>
+<li>右上の[ログイン]をクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 601.70px" src="img/80054cc287e938fd.png"></p>
+<ol type="1" start="3">
+<li>LINEに登録済みのメールアドレスとパスワードを入力してログインします。</li>
+</ol>
+<p class="image-container"><img style="width: 338.50px" src="img/76e2de73d6f8cdc6.png"></p>
+<h2 is-upgraded>トークン取得</h2>
+<p>ログインしたらトークンを取得します。なお、ここで発行したトークンは同じものは再発行できないので、無くなさないようにお願いします。</p>
+<ol type="1" start="1">
+<li>右上のアカウント名が表示されているところをクリックして、[マイページ ]をクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 265.00px" src="img/3f58868c07972415.png"></p>
+<ol type="1" start="2">
+<li>アクセストークンの発行(開発者向け)の[トークンを発行する]をクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 601.70px" src="img/85f74886042196d9.png"></p>
+<ol type="1" start="3">
+<li>トークンを発行するでは、以下の設定を行います。</li>
+</ol>
+<ol type="1" start="1">
+<li>トークン名 : soracom-handson</li>
+<li>通知を送信するトークルーム : 1:1でLINE Notifyから通知を受け取る</li>
+</ol>
+<p class="image-container"><img style="width: 407.50px" src="img/e52c2c3292a1d879.png"></p>
+<ol type="1" start="4">
+<li>[発行する]をクリックします。トークンが発行されます。</li>
+</ol>
+<p class="image-container"><img style="width: 397.50px" src="img/f820942cfd6fef4b.png"></p>
+<ol type="1" start="5">
+<li>前述のとおり、発行されたトークンはここでしか取得できませんので、必ずコピー([コピー]をクリック)して、テキストファイルなどにコピーしておきます。</li>
+</ol>
+<h2 is-upgraded>トラブルシューティング</h2>
+<ol type="1" start="1">
+<li>ログインできない。</li>
+</ol>
+<ol type="1" start="1">
+<li><a href="https://guide.line.me/ja/account-and-settings/account-and-profile/set-email-address.html" target="_blank">https://guide.line.me/ja/account-and-settings/account-and-profile/set-email-address.html</a> を参考に、再度LINEアプリでメールアドレスとパスワードの設定をお願いします。</li>
+<li>トークンをコピーするのを忘れてしまった。</li>
+</ol>
+<ol type="1" start="1">
+<li>再発行できないので、再度トークンの発行の手順を行ってください。</li>
+</ol>
+
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="AWS側環境構築" duration="0">
+        <h2 is-upgraded><strong>CloudShellの起動</strong></h2>
+<ol type="1" start="1">
+<li>AWSのコンソールにログインします。<br>リージョンはどこでも問題ありませんが、前提条件にある通り、このハンズオンではAWSの北バージニアリージョン(us-east-1)、東京リージョン(ap-northeast-1)、オレゴンリージョン(us-west-2)で動作確認しています。</li>
+<li>画面右上のアイコン(CloudShell)をクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 566.90px" src="img/ac24da883898fc50.png"></p>
+<ol type="1" start="3">
+<li>以下のような画面が表示されれば問題ありません。</li>
+</ol>
+<p class="image-container"><img style="width: 489.00px" src="img/d2d0e8fdfb51b166.png"></p>
+<ol type="1" start="4">
+<li>起動したら、コンソール上で、[cdk --version]を実行します。CloudShellにはCDKやCDKの実行に必要なモジュールなどがあらかじめインストールされています。<br>表示されたバージョンが2.100.0以上であれば問題ありません(2024/09/05 現在 2.14690 (build b368c78) になっています)</li>
+</ol>
+<h2 is-upgraded><strong>Amazon Location ServiceおよびAWS Lambda関数のセットアップ</strong></h2>
+<p>githubレポジトリから必要なリソースをダウンロードしてきて、AWS CDKでセットアップします。</p>
+<ol type="1" start="1">
+<li>以下のgithubレポジトリにアクセスし、CloudShell上にCloneします。</li>
+</ol>
+<pre>git clone https://github.com/Kenichiro-Wada/soracom-amazon-location-service-handson-v2.git</pre>
+<ol type="1" start="2">
+<li>チェックアウトしたディレクトリに移動します。</li>
+</ol>
+<pre>cd soracom-amazon-location-service-handson-v2</pre>
+<ol type="1" start="3">
+<li>以下のコマンドを実行し、CDKでリソースをデプロイの準備をします。</li>
+</ol>
+<p>npm i実行時に、Warningのダイアログが出た場合は、そのまま[Yes]を押します。<br>すでにCDKを実行したことのある環境で実施する場合は、2つ目の「cdk bootstrap」は飛ばして構いません。        <br>npm i を実行して、「no space left on device, write」などのエラーが出た場合は、右上のアクション-&gt;削除 をクリックして、一旦初期化してください。</p>
+<pre>npm i
+cdk synth
+cdk bootstrap
+cdk diff</pre>
+<ol type="1" start="4">
+<li>エラーなく正常に終了したら、次のコマンドを実行し、リソースをデプロイします。<br>途中で「 Do you wish to deploy these changes (y/n)? 」と出たら、yを入力します。</li>
+</ol>
+<pre>cdk deploy</pre>
+<ol type="1" start="5">
+<li><strong>Outputs</strong>: 以下に表示されているリソース名やARNをコピーしておきます。</li>
+</ol>
+<pre>Outputs:
+SoracomAmazonLocationServiceHandsonV2Stack.OutputAmazonLocationServiceHandsonTrackerTrackerName = 〜
+SoracomAmazonLocationServiceHandsonV2Stack.OutputBatchUpdateDevicePositionFromGpsMultiUnitForFunkFunctionArn = 〜
+SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationForSoracomRoleRoleArn = 〜
+
+</pre>
+<h2 is-upgraded><strong>Amazon Location Serviceの確認</strong></h2>
+<p>作成されたリソースの確認をします。</p>
+<ol type="1" start="1">
+<li>Amazon Location Serviceのコンソールを開きます。<br>Cloudshellを実行したのと同じリージョンであることを確認してください。</li>
+<li>左ペインを開き、[リソースを管理]の下の[マップ]をクリックし、マイマップに新しくMapができていることを確認します。<br><img style="width: 566.90px" src="img/29d6f75353b856d3.png"></li>
+</ol>
+<p class="image-container"><img style="width: 566.96px" src="img/d509bde3461ccce9.png"></p>
+<ol type="1" start="3">
+<li>同じように[インデックスの配置]、[ルート計算ツール]、[ジオフェンスのコレクション]、[トラッカー]で作成されていることを確認します。<br>なお、[ジオフェンスのコレクション]において、今回作成したGeoFenceのコレクションには、ジオフェンス自体は設定されていないことを確認してください。</li>
+</ol>
+<p class="image-container"><img style="width: 566.90px" src="img/ffcf76eef18bd364.png"><img style="width: 567.50px" src="img/45343ba7b7f22e76.png"><img style="width: 566.90px" src="img/d3e046c84d95f22b.png"><img style="width: 566.50px" src="img/a4f1acfea7538a68.png"><img style="width: 566.90px" src="img/5744b4dbbc08384b.png"><img style="width: 567.35px" src="img/fb049b03d26db64f.png"></p>
+<p class="image-container"><img style="width: 566.50px" src="img/f910562cc85ff431.png"></p>
+<h2 is-upgraded><strong>AWS Lambda上の設定変更を実施</strong></h2>
+<p>リソース自体は問題なくできていますが、LINEの通知のためのToken等を設定します。</p>
+<ol type="1" start="1">
+<li>AWS Lambdaのコンソールを開きます。<br>こちらもCloudshellを実行したのと同じリージョンであることを確認してください。</li>
+<li>初期表示(表示されていない場合は、左ペインの関数をクリックしてください)でLambdaSoracomAmazonLocation で始まる関数が2つあることを確認します。<br><strong>SoracomAmazonLocationServ-BatchUpdateDevice〜<br>SoracomAmazonLocationServic-geoFenceNotify〜</strong></li>
+<li>まず、<strong>SoracomAmazonLocationServic-geoFenceNotify</strong>〜の関数をクリックします。</li>
+<li>設定タブ-&gt; 環境変数を表示し、編集ボタンをクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 566.90px" src="img/4cc982eb53af1109.png"></p>
+<ol type="1" start="5">
+<li>キー「LINE_NOTIFY_TOKEN」の値を、LINE Tokenの取得のところで取得したTokenの値に変更し、保存をクリックします。<br><img style="width: 566.90px" src="img/e7f31698b98eb0a2.png"></li>
+<li>一度、一覧画面に戻って、次に<strong>SoracomAmazonLocationServ-BatchUpdateDevice〜</strong>の関数をクリックします。</li>
+<li>同じように、設定タブ-&gt; 環境変数を表示し、編集ボタンをクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 566.90px" src="img/c9c78d90bbe2b645.png"></p>
+<ol type="1" start="8">
+<li>キー「DEVICE_ID」の値を変更します。通知等で表示される識別用のIDなので、名前-日付-Device (ex wada-20240914-Device)などを入力してください。2バイト文字は入力できないので、ご注意ください。</li>
+</ol>
+<h2 is-upgraded>Amazon Location Serviceの動作確認</h2>
+<p>動作確認として、GeoFenceの設定を行い、その後ダミーで位置情報を登録して、</p>
+<p>実際に通知されるかを確認します。</p>
+<h3 is-upgraded><strong>GeoFenceの設定</strong></h3>
+<ol type="1" start="1">
+<li>画面右上のアイコン(CloudShell)をクリックして、再度CloudShellを起動します。</li>
+<li>以下のコマンドを入力して、GeoFenceを設定します。</li>
+</ol>
+<pre>aws location put-geofence --cli-input-json file://cli-json/geofence-ug-touhoku1.json</pre>
+<ol type="1" start="3">
+<li>以下のようなレスポンスが帰ってくれば問題ありません。</li>
+</ol>
+<pre>$ aws location put-geofence --cli-input-json file://cli-json/geofence1.json
+{geofence-ug-touhoku1.json
+    &#34;GeofenceId&#34;: &#34;GeoFence001&#34;,
+    &#34;CreateTime&#34;: &#34;2024-09-08T09:26:20.767000+00:00&#34;,
+    &#34;UpdateTime&#34;: &#34;2024-09-08T09:26:20.767000+00:00&#34;
+}</pre>
+<ol type="1" start="4">
+<li>同じようにもう1つ、GeoFenceを設定します。<br></li>
+</ol>
+<pre>aws location put-geofence --cli-input-json file://cli-json/geofence-ug-touhoku2.json</pre>
+<p>この時点で、Amazon Location Serviceのジオフェンスのコレクションにいくと、以下のように登録されたGeoFenceが表示されていると思います。<br><img style="width: 538.80px" src="img/2acf634a0205ec0a.png"></p>
+<h3 is-upgraded><strong>位置情報の登録</strong></h3>
+<ol type="1" start="1">
+<li>GeoFenceの設定ができたので、2つ位置情報を設定して、通知がくるか確認します。以下のコマンドを実行します。</li>
+</ol>
+<pre>$ aws location batch-update-device-position --cli-input-json file://cli-json/sample-update-ug-touhoku1.json</pre>
+<ol type="1" start="2">
+<li>以下のようなレスポンスが帰ってくれば問題ありません。</li>
+</ol>
+<pre>$ aws location batch-update-device-position --cli-input-json file://cli-json/sample-update-ug-touhoku1.json
+{
+    &#34;Errors&#34;: []
+}</pre>
+<p>もし、Errors に以下のようなエラー等が表示された場合は、CloudShell上でviコマンド等を使って、ファイル内のSampleTimeを書き換えてください。</p>
+<pre>{
+    &#34;Errors&#34;: [
+        {
+            &#34;DeviceId&#34;: &#34;sampleDevice001&#34;,
+            &#34;SampleTime&#34;: &#34;2024-09-14T05:00:00+00:00&#34;,
+            &#34;Error&#34;: {
+                &#34;Code&#34;: &#34;ValidationError&#34;,
+                &#34;Message&#34;: &#34;timestamps from the future are not allowed&#34;
+            }
+        }
+    ]
+}</pre>
+<ol type="1" start="3">
+<li>同じように以下のコマンドを実行します。</li>
+</ol>
+<pre>$ aws location batch-update-device-position --cli-input-json file://cli-json/sample-update-ug-touhoku1.json</pre>
+<ol type="1" start="4">
+<li>LINEに以下のような通知がきていれば問題ありません。もし、来ない場合は運営にご相談ください。</li>
+</ol>
+<p class="image-container"><img style="width: 439.10px" src="img/8876b1526df76807.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="SORACOMデバイスの設定" duration="1">
+        <h2 is-upgraded><strong>ユーザーコンソールへのログイン手順</strong></h2>
+<p>SORACOMユーザーコンソールへのログイン手順を解説します。<br></p>
+<h3 is-upgraded>ユーザーコンソールへログインする</h3>
+<p>SORACOM ユーザーコンソール (https://auth.soracom.io/login/) へアクセスします。登録時に利用したメールアドレスとパスワードを入力し、 [ログイン] ボタンをクリックしてください。<br><img style="width: 489.91px" src="img/a83e412baf136fd1.png"></p>
+<p>ルートユーザーで多要素認証設定済みの場合は、MFA認証コードを入力する画面に遷移します。設定済みのMFA認証コードを入力してください。<img style="width: 408.00px" src="img/9e0bdbf00d0c385c.png"></p>
+<p>以下のような「SIM 管理」画面が表示されたらログイン完了です。</p>
+<p class="image-container"><img style="width: 566.90px" src="img/231a64cf2d2f821.png"></p>
+<h2 is-upgraded><strong>GPSマルチユニットの初期設定</strong></h2>
+<p>GPSマルチユニットのセットアップは以下の手順を行ってください。</p>
+<p>なお、別サイトになりますので、最後まで実施したら、このテキストに戻ってきてください。</p>
+<p><a href="https://soracom.jp/recipes_index/2962/#GPS" target="_blank">https://soracom.jp/recipes_index/2962/#GPS</a></p>
+<p><a href="https://soracom.jp/recipes_index/2962/#SIM_GPS" target="_blank">https://soracom.jp/recipes_index/2962/#SIM_GPS</a></p>
+<h2 is-upgraded><strong>ガジェット設定〜Harvest動作確認</strong></h2>
+<p>ガジェット設定を行い、動作確認として、GPSマルチユニットのクリックした際に SORACOM Harvest に対してデータをクリックタイプを保存する方法を解説します。</p>
+<h2 is-upgraded>ガジェット設定にて、グループを作成する。</h2>
+<ol type="1" start="1">
+<li>ユーザーコンソール(https://console.soracom.io/) の &#34;Menu&#34; から &#34;ガジェット管理&#34; の&#34;LTE-M Button for Enterprise/Plus&#34; をクリックします。<br><img style="width: 485.00px" src="img/10807edd96b259a8.png"><br><img style="width: 485.61px" src="img/e0ca28cffdf219b6.png"><br></li>
+<li>&#34;GPSマルチユニットを追加&#34;ボタンをクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 601.70px" src="img/ef59564cd4a9b265.png"></p>
+<ol type="1" start="3">
+<li>今回使用するGPSマルチユニットで使うSIMが表示されているので、チェックを入れて、&#34;次へ : グループを選択&#34;をクリックします。<br>※貸し出しの場合、一覧に利用するSIMが表示されていない場合は、チューターにご連絡ください。<br><img style="width: 601.70px" src="img/245d63087a3cce3c.png"></li>
+<li>新規グループを作成 を選び、グループ名に任意の名前 (たとえば &#34;gps-multi-uniti-group&#34;)を入力して、&#34;次へ : 設定を編集&#34; をクリックします。<br><img style="width: 601.70px" src="img/5bd45e04fcde87fe.png"><br></li>
+<li>送信先セクションの&#34;SORACOM Harvest Data ( Lagoon)&#34;にチェックを入れます。<br><img style="width: 514.05px" src="img/e84f21c6b5f21fbd.png"></li>
+<li>定期送信 - 手動モード 詳細設定セクションの送信間隔に&#34;2&#34;(2分間隔)と入力します。<br><img style="width: 601.70px" src="img/79a606a19d09ce22.png"></li>
+<li>画面下部の&#34;保存&#34;ボタンをクリックします。<br><img style="width: 601.70px" src="img/a7e94aff08b86038.png"><br><br></li>
+<li>設定完了のダイアログが出てくれば、完了です。GPSマルチユニットのファンクションボタンを押して、設定を反映させます。その後、&#34;デバイス一覧に戻る&#34;をクリックして、デバイス一覧画面に戻ります。<br><img style="width: 601.70px" src="img/ea2c7f70deab22c7.png"></li>
+</ol>
+<p class="image-container"><img style="width: 601.70px" src="img/32820b86dbacf85f.png"></p>
+<ol type="1" start="9">
+<li>デバイス一覧にて、&#34;SIMグループを編集&#34;ボタンをクリックします。<br><img style="width: 601.70px" src="img/e8218faf169d3509.png"></li>
+<li>作成したSIMグループの設定画面に移動しますので、SORACOM Air for セルラー設定 セクションで以下を入力します。</li>
+</ol>
+<table>
+<tr><td colspan="1" rowspan="1"><p>設定名</p>
+</td><td colspan="1" rowspan="1"><p>任意</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>バイナリパーサー</p>
+</td><td colspan="1" rowspan="1"><p>ON</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>フォーマット</p>
+</td><td colspan="1" rowspan="1"><p>@gpsmultiunit</p>
+</td></tr>
+</table>
+<p class="image-container"><img style="width: 601.70px" src="img/e61bbd39b155fa10.png"><img style="width: 601.70px" src="img/aea3679e6f71cd4e.png"></p>
+<ol type="1" start="11">
+<li>SORACOM Harvest Data 設定セクションにて、設定がONになっていることを確認します。<br><img style="width: 601.70px" src="img/5f1aa4e48cdbdbf6.png"></li>
+</ol>
+<h2 is-upgraded>Harvest を確認する</h2>
+<p>Harvest 上のデータを以下の手順で確認します。</p>
+<ol type="1" start="1">
+<li>&#34;Menu&#34; から &#34;SIM 管理&#34; を選択します。<br> </li>
+<li>使用するGPSマルチユニット の SIM の左端にある チェックボックスを選択し、&#34;操作&#34; =&gt; &#34;データを確認&#34; を選択します。<br><img style="width: 332.50px" src="img/9a39f0c141dc5801.png"><br></li>
+<li>2分間隔でGPSマルチユニットからデータが送信されていることが確認できます。<br>データ列の &#34;lat&#34; と &#34;lon&#34; が緯度・経度になります。もし、この2つが &#34;null&#34;の場合、GPSの信号を受信することができていない状態です。窓際に置くなどして見てください。<br><img style="width: 558.50px" src="img/33d1076000139bb3.png"></li>
+<li>マップピンアイコンを選択することで表示を地図に変更して、位置情報を確認します。左上の &#34;+&#34; や &#34;-&#34; でズームを調整できます。<br><img style="width: 601.70px" src="img/3daa33d07cb270ac.png"></li>
+</ol>
+
+<h2 is-upgraded><strong>IAM Role認証作成</strong></h2>
+<p>SORACOM FunkからAWS Lambdaを呼び出す際に利用するAWS IAMロール認証情報の設定方法について解説します。</p>
+<h2 is-upgraded>SORACOMコンソールにて AWS IAMロール認証情報を作成する。</h2>
+<ol type="1" start="1">
+<li>ユーザーコンソール(https://console.soracom.io/) の右上にあるメニューで、&#34;セキュリティ&#34;を選択します。<br><img style="width: 477.24px" src="img/f76de1cf63ff757b.png"><br></li>
+<li>左ペインにて、&#34;認証情報ストア&#34;をクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 309.97px" src="img/5ca5ffc6baa160bf.png"></p>
+<ol type="1" start="3">
+<li>「認証情報を登録」ボタンを押します。<br><img style="width: 139.00px" src="img/1be382858506aeaa.png"></li>
+<li>&#34;種別&#34;として「AWS IAM ロール認証情報」を選びます。<br>それ以外の項目は以下の通りです。<br>認証情報ID : 任意の英数字 ex) soracom-handson-iam-role<br>概要 : 空白で大丈夫です。<br>ロール ARN : 環境構築時のOutput(SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationForSoracomRoleRoleArn)に表示されていたIAM RoleのARN。<br>外部ID : soracomug<br>入力が終わったら、&#34;登録&#34;ボタンをクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 601.70px" src="img/5b863900d390602c.png"><img style="width: 601.70px" src="img/6db986d6221df30c.png"></p>
+<ol type="1" start="5">
+<li>一覧に登録した認証情報IDが表示されていれば大丈夫です。</li>
+</ol>
+<p class="image-container"><img style="width: 601.70px" src="img/be2f35977f21a0cc.png"><br></p>
+
+<h2 is-upgraded><strong>SORACOM Funk設定</strong></h2>
+<p>SORACOM Funkの設定方法について解説します。</p>
+<h2 is-upgraded>SIMグループにて、SORACOM Funkの設定を作成する。</h2>
+<ol type="1" start="1">
+<li>ユーザーコンソール(https://console.soracom.io/) の &#34;Menu&#34; から &#34;SORACOM AIR FORセルラー&#34; の&#34;SIM グループ&#34; をクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 438.68px" src="img/3213c59cd0307b3e.png"></p>
+<ol type="1" start="2">
+<li>ガジェット設定で作成したSIMグループを選択します。</li>
+<li>基本設定タブの中にある&#34;SORACOM Funk 設定&#34; をクリックします。<br><img style="width: 601.70px" src="img/8510ebdcf6fd7871.png"></li>
+<li>&#34;on&#34;ボタンをクリックして有効化します。<br><img style="width: 601.70px" src="img/5adff107f775f099.png"></li>
+<li>以下を入力します。</li>
+</ol>
+<p>関数のARN : 環境構築時のOutput(SoracomAmazonLocationServiceHandsonV2Stack.OutputBatchUpdateDevicePositionFromGpsMultiUnitForFunkFunctionArn)に表示されていたAWS Lambda関数のARN<br>認証情報 : 先ほど作成したAWS IAMロール認証情報を選択します。<br>設定したら、下部の &#34;保存&#34; ボタンをクリックします。<br><img style="width: 501.15px" src="img/b9e1f742cb02af64.png"></p>
+
+<h2 is-upgraded><strong>SORACOM Beam設定</strong></h2>
+<p>最後に運営が用意する可視化環境に接続するために、<br>SORACOM Beamの設定を行います。</p>
+<p>SORACOM Beamを使って、デバイスからのデータを運営が用意したAWS環境に送信し、位置情報を可視化するところまでを解説します。</p>
+<p>まず、利用するサービスについて解説します。</p>
+<h2 is-upgraded>SORACOM Beamについて</h2>
+<p>今回のハンズオンでは、「データ転送支援サービス  SORACOM Beam」を用いてAWS LambdaのFunction URLsのエンドポイントにデータを送信します。</p>
+<p>SORACOM Beamについて詳しくは以下の公式ページを参照ください。<br><br><a href="https://soracom.jp/services/beam/" target="_blank">https://soracom.jp/services/beam/</a></p>
+<h3 is-upgraded>利用料金</h3>
+<ul>
+<li>日本カバレッジ 1 リクエスト(*) あたり 0.00099 円</li>
+<li>グローバルカバレッジ 1 リクエスト(*) あたり 0.0000099 USD</li>
+</ul>
+<p>(*) エントリーポイント (Beam) へのリクエスト、Beamから転送先へのリクエスト、それぞれを個別に 1 リクエストとカウントします。</p>
+<p>今回のハンズオンでは、ほとんどの方は無料枠の中でご利用いただけます。</p>
+<h2 is-upgraded>SORACOM Beamの設定</h2>
+<p>AWS Lambdaを呼び出すSORACOM Beamの設定をします。</p>
+<p>所属させたグループ名をクリックし、SIMグループの設定画面に移動します。(以下はButtonの例ですが、GPSマルチユニットでも同様です)</p>
+<p class="image-container"><img style="width: 601.70px" src="img/31b46830a514dd62.png"></p>
+<p>SORACOM Beamのセクションで[設定を追加する]をクリックして、「UDP → HTTP/HTTPS エントリポイント」を選択します。</p>
+<p class="image-container"><img style="width: 566.63px" src="img/9118ca20e225a6e7.png"><img style="width: 262.50px" src="img/ba19f1deb390616c.png"></p>
+<p>以下の設定を入力して「保存」をクリックします。</p>
+<p>今回のハンズオンでは、AWS側のデバイスIDとして、カスタムヘッダで設定した値を利用しますので、必ず設定を行うようにしてください。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>設定名</p>
+</td><td colspan="1" rowspan="1"><p>任意</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>ホスト名</p>
+</td><td colspan="1" rowspan="1"><p>当日運営よりご案内します。</p>
+<p>※デバイスによって異なるので、注意</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>レスポンス - ステータスコードを省略</p>
+</td><td colspan="1" rowspan="1"><p>ON</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>カスタムヘッダ</p>
+</td><td colspan="1" rowspan="1"><p>アクション : 追加</p>
+<p>ヘッダ名 : x-soracom-device-name</p>
+<p>値 : 任意ですが、英数字、ハイフン(-)、アンダースコア(_)、ドット(.)のみ利用可能です。</p>
+</td></tr>
+</table>
+<p class="image-container"><img style="width: 460.38px" src="img/76104263eaed27aa.png"></p>
+<p class="image-container"><img style="width: 456.35px" src="img/981725a4c91163f.png"></p>
+<h2 is-upgraded>動作確認</h2>
+<p>デバイスから位置情報を送信してみましょう。オンライン上の運営が表示している画面に、カスタムヘッダで入力した値と緯度軽度が表示されればOKです。</p>
+<p>位置を変えることで、デバイスの位置が変わりますので、休憩がてらにちょっと散歩に出かけてみましょう。</p>
+<p>（Buttonの場合、押した場所によっては、基地局が変わらず、位置が変わらない可能性もあります）<br></p>
+
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="実行確認" duration="0">
+        <p>設定が問題ない場合、GPSマルチユニットからの情報が、SORACOM Funk経由でAWS Lambda関数まで届いていると思います。</p>
+<ol type="1" start="1">
+<li>AWS Lambdaのコンソールの関数一覧で<strong>SoracomAmazonLocationServ-BatchUpdateDevice〜 </strong>をクリックします。</li>
+<li>モニタリングタブを選択して、&#34;CloudWatch ログを表示&#34;ボタンをクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 566.90px" src="img/d4377058c235df57.png"></p>
+<ol type="1" start="3">
+<li>問題なければ、ログストリームが作成されているはずです。</li>
+<li>そのうち1つがクリックして、以下のような出力が出てきていると思います。</li>
+</ol>
+<p class="image-container"><img style="width: 566.90px" src="img/bd8a1c09f4420fe5.png"></p>
+<ol type="1" start="5">
+<li>GPSマルチユニット(を含むGPSデバイス全般ですが)は室内の場合、位置情報が取得しずらいため、緯度経度を示す lat と lon が null になっていることが多いと思いますので、その場合は、窓際に配置することで、位置情報が取れやすくなると思います。</li>
+<li>今回のハンズオンでは、以下の2箇所にGeoFenceを配置しています。<br>なので、上のGeoFence(オレンジ色)あたりまで歩いて行ってみましょう。<br>そうすると、下のGeoFenceから出発した通知、上のGeoFenceに到着した通知がLINEに来ると思います。<br><img style="width: 486.10px" src="img/37b83e7d9482a682.png"></li>
+</ol>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="可視化環境への接続" duration="0">
+        <p>最後に運営が用意する可視化環境に接続するために、<br>SORACOM Beamの設定を行います。</p>
+<p>[[<strong>import 4kjwp55cjmjztk62q575le7n7y0pghef.lambda-url.ap-northeast-1.on.aws</strong>]]</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="後片付け" duration="0">
+        <p>SORACOMプラットフォーム側の後片付けについては以下を実施してください。</p>
+<p>後片付けの手順を解説します。</p>
+<h2 is-upgraded>SIMグループの削除</h2>
+<p>SIMグループを削除するには、紐づいているSIMグループを削除してから削除する必要があります。</p>
+<ol type="1" start="1">
+<li>SIMの紐付け解除は、SIMグループの登録と同じ手順で、SIMを選択して、SIMの所属グループ変更画面を表示します。<br>新しい所属グループで[グループ解除]を選択して、登録すれば解除されます。</li>
+</ol>
+<p class="image-container"><img style="width: 500.50px" src="img/efaba6b0838fa796.png"></p>
+<ol type="1" start="2">
+<li>SIMグループの削除は、SIMグループ設定画面右上の[削除]をクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 503.50px" src="img/25ded7386228b4ec.png"></p>
+<ol type="1" start="3">
+<li>問題なければそのまま[削除する]をクリックします。これで完了です。</li>
+</ol>
+<p class="image-container"><img style="width: 508.66px" src="img/f617fd37dcba7a40.png"></p>
+<p>なお、SIMの紐付けがあると、エラーになりますので、必ずSIMの紐付けを全部解除してから行ってください。</p>
+<h3 is-upgraded>ボタン持ち込み/GPSマルチユニット持ち込みの場合</h3>
+<p>このままでも、課金が発生することはありませんが、後片付けを行います。<br>後片付けの手順にある、以下の手順のみ行ってください。</p>
+<ol type="1" start="1">
+<li>SIMグループの削除</li>
+</ol>
+<h3 is-upgraded>ボタン貸し出しの場合</h3>
+<p>ボタン貸し出しの場合、SORACOMのコンソールからログアウトして、ボタンを運営メンバーにお返しください。</p>
+<h3 is-upgraded>GPSマルチユニット貸し出しの場合</h3>
+<p>後片付けの手順にある以下の手順を実施した上で、GPSマルチユニットからSIMカードを外して、GPSマルチユニットをお返しください。</p>
+<p>SIMカードはお持ち帰りください。</p>
+<ol type="1" start="1">
+<li>SIMグループの削除</li>
+</ol>
+
+<p>AWS環境側のリソースの削除については以下の手順で削除を行なってください。</p>
+<h2 is-upgraded><strong>作成したAWSリソースの削除</strong></h2>
+<ol type="1" start="1">
+<li>画面右上のアイコン(CloudShell)をクリックして、再度CloudShellを起動します。</li>
+<li>以下のコマンドを入力して、リソースを削除します。途中で<br>Are you sure you want to delete: SoracomAmazonLocationServiceHandsonV2Stack (y/n)? と聞かれたら y を入力します。</li>
+</ol>
+<pre>cdk destroy</pre>
+<ol type="1" start="3">
+<li>SoracomAmazonLocationServiceHandsonV2Stack: destroyed と表示されればリソース削除完了です。<br><strong>お疲れ様でした！</strong></li>
+</ol>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
