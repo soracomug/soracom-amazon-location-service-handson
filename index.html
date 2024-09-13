@@ -28,19 +28,12 @@
                   feedback-link="">
     
       <google-codelab-step label="ハンズオンを始める前に" duration="5">
-        <h2 is-upgraded>ドライランされる方へ(最後消す)</h2>
-<ul>
-<li>誤字脱字は直接直していいよ</li>
-<li>意見はコメントで</li>
-<li>不足しているところを追加する、もしくは削除を大きくされる場合は提案モードで、書いちゃってください</li>
-<li>これでやって↓<br> <img style="width: 385.00px" src="img/b6a662da2b67ba2a.png"></li>
-</ul>
-<h2 is-upgraded>前提</h2>
+        <h2 is-upgraded>前提</h2>
 <ul>
 <li>PC (Windows もしくは macOSで、ブラウザはChrome、もしくは Firefoxをインストールしておいてください)</li>
 <li>SORACOMアカウント (SORACOMアカウントの作成手順は<a href="https://soracom.github.io/iot-recipes/create-account-soracom-jp/#0" target="_blank">こちら</a>)</li>
 <li>AWSアカウント(AWSアカウントの作成手順は<a href="https://aws.amazon.com/jp/register-flow/" target="_blank">こちら</a>)</li>
-<li>このハンズオンテキストは、AWSの東京リージョン(ap-northeast-1)、オレゴンリージョン(us-west-2)で動作確認しています。</li>
+<li>このハンズオンテキストは、AWSの東京リージョン(ap-northeast-1)、北バージニアリージョン(us-east-1)、オレゴンリージョン(us-west-2)で動作確認しています。</li>
 </ul>
 <h2 is-upgraded>構成図</h2>
 <p class="image-container"><img style="width: 566.90px" src="img/d7d9f0df7f8eabff.png"></p>
@@ -179,7 +172,7 @@ SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationFor
 <h2 is-upgraded><strong>Amazon Location Serviceの確認</strong></h2>
 <p>作成されたリソースの確認をします。</p>
 <ol type="1" start="1">
-<li>Amazon Location Serviceのコンソールを開きます。<br>Cloudshellを実行したのと同じリージョンであることを確認してください。</li>
+<li>Amazon Location Serviceのコンソールを開きます。<br>ClCloudshellを実行したのと同じリージョンであることを確認してください。</li>
 <li>左ペインを開き、[リソースを管理]の下の[マップ]をクリックし、マイマップに新しくMapができていることを確認します。<br><img style="width: 566.90px" src="img/29d6f75353b856d3.png"></li>
 </ol>
 <p class="image-container"><img style="width: 566.96px" src="img/d509bde3461ccce9.png"></p>
@@ -192,8 +185,8 @@ SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationFor
 <p>リソース自体は問題なくできていますが、LINEの通知のためのToken等を設定します。</p>
 <ol type="1" start="1">
 <li>AWS Lambdaのコンソールを開きます。<br>こちらもCloudshellを実行したのと同じリージョンであることを確認してください。</li>
-<li>初期表示(表示されていない場合は、左ペインの関数をクリックしてください)でLambdaSoracomAmazonLocation で始まる関数が2つあることを確認します。<br><strong>SoracomAmazonLocationServ-BatchUpdateDevice〜<br>SoracomAmazonLocationServic-geoFenceNotify〜</strong></li>
-<li>まず、<strong>SoracomAmazonLocationServic-geoFenceNotify</strong>〜の関数をクリックします。</li>
+<li>初期表示(表示されていない場合は、左ペインの関数をクリックしてください)でLambdaSoracomAmazonLocation で始まる関数が2つあることを確認します。<br><strong>SoracomAmazonLocationServ-BatchUpdateDevice〜<br>SoracomAmazonLocationServic-GeoFenceNotify〜</strong></li>
+<li>まず、<strong>SoracomAmazonLocationServic-GeoFenceNotify</strong>〜の関数をクリックします。</li>
 <li>設定タブ-&gt; 環境変数を表示し、編集ボタンをクリックします。</li>
 </ol>
 <p class="image-container"><img style="width: 566.90px" src="img/4cc982eb53af1109.png"></p>
@@ -218,8 +211,8 @@ SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationFor
 <ol type="1" start="3">
 <li>以下のようなレスポンスが帰ってくれば問題ありません。</li>
 </ol>
-<pre>$ aws location put-geofence --cli-input-json file://cli-json/geofence1.json
-{geofence-ug-touhoku1.json
+<pre>$ aws location put-geofence --cli-input-json file://cli-json/geofence-ug-touhoku1.json
+{
     &#34;GeofenceId&#34;: &#34;GeoFence001&#34;,
     &#34;CreateTime&#34;: &#34;2024-09-08T09:26:20.767000+00:00&#34;,
     &#34;UpdateTime&#34;: &#34;2024-09-08T09:26:20.767000+00:00&#34;
@@ -233,7 +226,7 @@ SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationFor
 <ol type="1" start="1">
 <li>GeoFenceの設定ができたので、2つ位置情報を設定して、通知がくるか確認します。以下のコマンドを実行します。</li>
 </ol>
-<pre>$ aws location batch-update-device-position --cli-input-json file://cli-json/sample-update-ug-touhoku1.json</pre>
+<pre>aws location batch-update-device-position --cli-input-json file://cli-json/sample-update-ug-touhoku1.json</pre>
 <ol type="1" start="2">
 <li>以下のようなレスポンスが帰ってくれば問題ありません。</li>
 </ol>
@@ -257,7 +250,7 @@ SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationFor
 <ol type="1" start="3">
 <li>同じように以下のコマンドを実行します。</li>
 </ol>
-<pre>$ aws location batch-update-device-position --cli-input-json file://cli-json/sample-update-ug-touhoku1.json</pre>
+<pre>aws location batch-update-device-position --cli-input-json file://cli-json/sample-update-ug-touhoku2.json</pre>
 <ol type="1" start="4">
 <li>LINEに以下のような通知がきていれば問題ありません。もし、来ない場合は運営にご相談ください。</li>
 </ol>
