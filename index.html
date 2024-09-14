@@ -421,7 +421,49 @@ SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationFor
     
       <google-codelab-step label="可視化環境への接続" duration="0">
         <p>最後に運営が用意する可視化環境に接続するために、<br>SORACOM Beamの設定を行います。</p>
-<p>[[<strong>import </strong><a href="https://docs.google.com/document/d/1qeRDIUEYLNx15yj19QFR-EAN4eUyKPfntmVqZPXcnYA/edit" target="_blank">SORACOM Beam設定 for UG東北 2024.09.14</a>]</p>
+<p>SORACOM Beamを使って、デバイスからのデータを運営が用意したAWS環境に送信し、位置情報を可視化するところまでを解説します。</p>
+<p>まず、利用するサービスについて解説します。</p>
+<h2 is-upgraded>SORACOM Beamについて</h2>
+<p>今回のハンズオンでは、「データ転送支援サービス  SORACOM Beam」を用いてAWS LambdaのFunction URLsのエンドポイントにデータを送信します。</p>
+<p>SORACOM Beamについて詳しくは以下の公式ページを参照ください。<br><br><a href="https://soracom.jp/services/beam/" target="_blank">https://soracom.jp/services/beam/</a></p>
+<h3 is-upgraded>利用料金</h3>
+<ul>
+<li>日本カバレッジ 1 リクエスト(*) あたり 0.00099 円</li>
+<li>グローバルカバレッジ 1 リクエスト(*) あたり 0.0000099 USD</li>
+</ul>
+<p>(*) エントリーポイント (Beam) へのリクエスト、Beamから転送先へのリクエスト、それぞれを個別に 1 リクエストとカウントします。</p>
+<p>今回のハンズオンでは、ほとんどの方は無料枠の中でご利用いただけます。</p>
+<h2 is-upgraded>SORACOM Beamの設定</h2>
+<p>AWS Lambdaを呼び出すSORACOM Beamの設定をします。</p>
+<p>所属させたグループ名をクリックし、SIMグループの設定画面に移動します。(以下はButtonの例ですが、GPSマルチユニットでも同様です)</p>
+<p class="image-container"><img style="width: 601.70px" src="img/31b46830a514dd62.png"></p>
+<p>SORACOM Beamのセクションで[設定を追加する]をクリックして、「UDP → HTTP/HTTPS エントリポイント」を選択します。</p>
+<p class="image-container"><img style="width: 566.63px" src="img/9118ca20e225a6e7.png"><img style="width: 262.50px" src="img/ba19f1deb390616c.png"></p>
+<p>以下の設定を入力して「保存」をクリックします。</p>
+<p>今回のハンズオンでは、AWS側のデバイスIDとして、カスタムヘッダで設定した値を利用しますので、必ず設定を行うようにしてください。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>設定名</p>
+</td><td colspan="1" rowspan="1"><p>任意</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>ホスト名</p>
+</td><td colspan="1" rowspan="1"><p>yyuav3a465mi2ixqv6s6uugsyu0djbmq.lambda-url.us-west-2.on.aws</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>レスポンス - ステータスコードを省略</p>
+</td><td colspan="1" rowspan="1"><p>ON</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>カスタムヘッダ</p>
+</td><td colspan="1" rowspan="1"><p>アクション : 追加</p>
+<p>ヘッダ名 : x-soracom-device-name</p>
+<p>値 : 任意ですが、英数字、ハイフン(-)、アンダースコア(_)、ドット(.)のみ利用可能です。</p>
+</td></tr>
+</table>
+<p class="image-container"><img style="width: 460.38px" src="img/76104263eaed27aa.png"></p>
+<p class="image-container"><img style="width: 456.35px" src="img/981725a4c91163f.png"></p>
+<h2 is-upgraded>動作確認</h2>
+<p>デバイスから位置情報を送信してみましょう。オンライン上の運営が表示している画面に、カスタムヘッダで入力した値と緯度軽度が表示されればOKです。</p>
+<p>位置を変えることで、デバイスの位置が変わりますので、休憩がてらにちょっと散歩に出かけてみましょう。</p>
+<p>（Buttonの場合、押した場所によっては、基地局が変わらず、位置が変わらない可能性もあります）<br></p>
+
 
 
       </google-codelab-step>
