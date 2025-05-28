@@ -274,7 +274,23 @@ SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationFor
 </ol>
 
 <h2 is-upgraded><strong>IAM Role認証作成</strong></h2>
-<p>[[<strong>import </strong><a href="https://docs.google.com/document/d/1SGmJYWC2e1LJo72-93ahv-X39PPx_sJDCigeAIe8OSQ/edit?tab=t.0" target="_blank">IAMRole認証情報設定方法</a>]</p>
+<p>SORACOM FunkからAWS Lambdaを呼び出す際に利用するAWS IAMロール認証情報の設定方法について解説します。</p>
+<h2 is-upgraded>SORACOMコンソールにて AWS IAMロール認証情報を作成する。</h2>
+<ol type="1" start="1">
+<li>ユーザーコンソール(https://console.soracom.io/) の右上にあるメニューで、&#34;セキュリティ&#34;を選択します。<br><img style="width: 477.24px" src="img/f76de1cf63ff757b.png"><br></li>
+<li>左ペインにて、&#34;認証情報ストア&#34;をクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 309.97px" src="img/5ca5ffc6baa160bf.png"></p>
+<ol type="1" start="3">
+<li>「認証情報を登録」ボタンを押します。<br><img style="width: 139.00px" src="img/1be382858506aeaa.png"></li>
+<li>&#34;種別&#34;として「AWS IAM ロール認証情報」を選びます。<br>それ以外の項目は以下の通りです。<br>認証情報ID : 任意の英数字 ex) soracom-handson-iam-role<br>概要 : 空白で大丈夫です。<br>ロール ARN : 環境構築時のOutput(SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationForSoracomRoleRoleArn)に表示されていたIAM RoleのARN。<br>外部ID : soracomug<br>入力が終わったら、&#34;登録&#34;ボタンをクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 601.70px" src="img/5b863900d390602c.png"><img style="width: 601.70px" src="img/6db986d6221df30c.png"></p>
+<ol type="1" start="5">
+<li>一覧に登録した認証情報IDが表示されていれば大丈夫です。</li>
+</ol>
+<p class="image-container"><img style="width: 601.70px" src="img/be2f35977f21a0cc.png"><br></p>
+
 <h2 is-upgraded><strong>SORACOM Funk設定</strong></h2>
 <p>SORACOM Funkの設定方法について解説します。</p>
 <h2 is-upgraded>SIMグループにて、SORACOM Funkの設定を作成する。</h2>
@@ -292,7 +308,48 @@ SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationFor
 
 <h2 is-upgraded><strong>SORACOM Beam設定</strong></h2>
 <p>最後に運営が用意する可視化環境に接続するために、<br>SORACOM Beamの設定を行います。</p>
-<p>[[<strong>import </strong><a href="https://docs.google.com/document/d/16ZX_qOXSreJjxc8vno2P_eLszI11SrMmvR2Y-LhEOiA/edit?tab=t.0" target="_blank">SORACOM Beam設定 for 2025.05.31</a>]</p>
+<p>SORACOM Beamを使って、デバイスからのデータを運営が用意したAWS環境に送信し、位置情報を可視化するところまでを解説します。</p>
+<p>まず、利用するサービスについて解説します。</p>
+<h2 is-upgraded>SORACOM Beamについて</h2>
+<p>今回のハンズオンでは、「データ転送支援サービス  SORACOM Beam」を用いてAWS LambdaのFunction URLsのエンドポイントにデータを送信します。</p>
+<p>SORACOM Beamについて詳しくは以下の公式ページを参照ください。<br><br><a href="https://soracom.jp/services/beam/" target="_blank">https://soracom.jp/services/beam/</a></p>
+<h3 is-upgraded>利用料金</h3>
+<ul>
+<li>日本カバレッジ 1 リクエスト(*) あたり 0.00099 円</li>
+<li>グローバルカバレッジ 1 リクエスト(*) あたり 0.0000099 USD</li>
+</ul>
+<p>(*) エントリーポイント (Beam) へのリクエスト、Beamから転送先へのリクエスト、それぞれを個別に 1 リクエストとカウントします。</p>
+<p>今回のハンズオンでは、ほとんどの方は無料枠の中でご利用いただけます。</p>
+<h2 is-upgraded>SORACOM Beamの設定</h2>
+<p>AWS Lambdaを呼び出すSORACOM Beamの設定をします。</p>
+<p>所属させたグループ名をクリックし、SIMグループの設定画面に移動します。(以下はButtonの例ですが、GPSマルチユニットでも同様です)</p>
+<p class="image-container"><img style="width: 601.70px" src="img/31b46830a514dd62.png"></p>
+<p>SORACOM Beamのセクションで[設定を追加する]をクリックして、「UDP → HTTP/HTTPS エントリポイント」を選択します。</p>
+<p class="image-container"><img style="width: 566.63px" src="img/9118ca20e225a6e7.png"><img style="width: 262.50px" src="img/ba19f1deb390616c.png"></p>
+<p>以下の設定を入力して「保存」をクリックします。</p>
+<p>今回のハンズオンでは、AWS側のデバイスIDとして、カスタムヘッダで設定した値を利用しますので、必ず設定を行うようにしてください。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>設定名</p>
+</td><td colspan="1" rowspan="1"><p>任意</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>ホスト名</p>
+</td><td colspan="1" rowspan="1"><p>bnqoevtq3i5uboognbdbaln7e40wcaps.lambda-url.us-west-2.on.aws</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>レスポンス - ステータスコードを省略</p>
+</td><td colspan="1" rowspan="1"><p>ON</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>カスタムヘッダ</p>
+</td><td colspan="1" rowspan="1"><p>アクション : 追加</p>
+<p>ヘッダ名 : x-soracom-device-name</p>
+<p>値 : 任意ですが、英数字、ハイフン(-)、アンダースコア(_)、ドット(.)のみ利用可能です。</p>
+</td></tr>
+</table>
+<p class="image-container"><img style="width: 460.38px" src="img/76104263eaed27aa.png"></p>
+<p class="image-container"><img style="width: 456.35px" src="img/981725a4c91163f.png"></p>
+<h2 is-upgraded>動作確認</h2>
+<p>デバイスから位置情報を送信してみましょう。オンライン上の運営が表示している画面に、カスタムヘッダで入力した値と緯度軽度が表示されればOKです。</p>
+<p>位置を変えることで、デバイスの位置が変わりますので、休憩がてらにちょっと散歩に出かけてみましょう。</p>
+
 
 
       </google-codelab-step>
@@ -313,13 +370,6 @@ SoracomAmazonLocationServiceHandsonV2Stack.OutputIamAuthenticationInformationFor
 <li>GPSマルチユニット(を含むGPSデバイス全般ですが)は室内の場合、位置情報が取得しずらいため、緯度経度を示す lat と lon が null になっていることが多いと思いますので、その場合は、窓際に配置することで、位置情報が取れやすくなると思います。</li>
 <li>今回のハンズオンでは、以下の2箇所にGeoFenceを配置しています。<br>なので、右のGeoFence(オレンジ色)あたりまで歩いて行ってみましょう。<br>そうすると、上のGeoFenceから出発した通知、右のGeoFenceに到着したことが通知先メールアドレスに来ると思います。<br><img style="width: 2048.00px" src="img/773404862ab205c7.png"></li>
 </ol>
-
-
-      </google-codelab-step>
-    
-      <google-codelab-step label="可視化環境への接続" duration="0">
-        <p>最後に運営が用意する可視化環境に接続するために、<br>SORACOM Beamの設定を行います。</p>
-<p>[[<strong>import </strong><a href="https://docs.google.com/document/d/16ZX_qOXSreJjxc8vno2P_eLszI11SrMmvR2Y-LhEOiA/edit?tab=t.0" target="_blank">SORACOM Beam設定 for 2025.05.31</a>]</p>
 
 
       </google-codelab-step>
